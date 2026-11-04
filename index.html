@@ -3,72 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Interactive GitHub Page</title>
+    <title>Neon Dashboard</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-color: #3b82f6;
-            --accent-hover: #2563eb;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-        }
-
-        [data-theme="light"] {
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-color: #0f172a;
-            --accent-color: #2563eb;
-            --accent-hover: #1d4ed8;
+            --bg-color: #05050a;
+            --card-bg: rgba(15, 15, 35, 0.7);
+            --border-neon: #00f0ff;
+            --text-neon: #ff007f;
+            --text-color: #e2e8f0;
+            --glow-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.2);
+            --pink-glow: 0 0 10px rgba(255, 0, 127, 0.5), 0 0 20px rgba(255, 0, 127, 0.2);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Courier New', Courier, monospace;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 2rem;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fixed Background Canvas for Floating Neon Particles */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: linear-gradient(135deg, #050510 0%, #020205 100%);
         }
 
         header {
             width: 100%;
             max-width: 800px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
         }
 
-        button {
-            cursor: pointer;
-            padding: 0.6rem 1.2rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            background-color: var(--accent-color);
-            color: white;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .theme-btn {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--text-color);
+        header h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px var(--border-neon), 0 0 20px var(--border-neon), 0 0 40px var(--border-neon);
+            animation: pulse 2s infinite alternate;
         }
 
         .dashboard {
@@ -76,59 +66,113 @@
             max-width: 800px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
             .dashboard {
                 grid-template-columns: 1fr;
             }
         }
 
         .card {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: var(--card-bg);
+            border: 2px solid var(--border-neon);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(8px);
+            box-shadow: var(--glow-shadow), inset 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .card:nth-child(2) {
+            border-color: var(--text-neon);
+            box-shadow: var(--pink-glow), inset 0 0 15px rgba(255, 0, 127, 0.1);
         }
 
         .card h2 {
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 0.5rem;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 8px currentColor;
         }
 
-        /* Click Counter Styling */
+        .card:nth-child(1) h2 { color: var(--border-neon); }
+        .card:nth-child(2) h2 { color: var(--text-neon); }
+
+        /* Neon Click Counter */
         .counter-section {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
         }
 
         .counter-display {
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: bold;
-            margin: 1rem 0;
-            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--border-neon), 0 0 25px var(--border-neon);
+            transition: transform 0.1s ease;
         }
 
-        /* Todo List Styling */
-        .todo-input-group {
+        /* Interactive Buttons */
+        button {
+            cursor: pointer;
+            background: transparent;
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cyan {
+            border: 2px solid var(--border-neon);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-cyan:hover {
+            background: var(--border-neon);
+            box-shadow: 0 0 20px var(--border-neon);
+            color: #000;
+        }
+
+        .btn-pink {
+            border: 2px solid var(--text-neon);
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+        }
+
+        .btn-pink:hover {
+            background: var(--text-neon);
+            box-shadow: 0 0 20px var(--text-neon);
+            color: #000;
+        }
+
+        /* Neon Task Tracker */
+        .input-group {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 0.6rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--text-neon);
             border-radius: 8px;
-            border: 1px solid #ccc;
-            background: var(--bg-color);
-            color: var(--text-color);
+            padding: 0.8rem;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--text-neon);
         }
 
         .todo-list {
@@ -141,89 +185,62 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem;
-            background: var(--bg-color);
-            margin-bottom: 0.5rem;
-            border-radius: 6px;
+            padding: 0.6rem 0.8rem;
+            background: rgba(255, 0, 127, 0.05);
+            border-left: 3px solid var(--text-neon);
+            margin-bottom: 0.6rem;
+            border-radius: 4px;
         }
 
         .delete-btn {
-            background-color: var(--danger-color);
-            padding: 0.3rem 0.6rem;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 0.2rem 0.5rem;
             font-size: 0.8rem;
+            border-radius: 4px;
         }
-        
+
         .delete-btn:hover {
-            background-color: #b91c1c;
+            background: #ff4444;
+            color: #000;
+            box-shadow: 0 0 10px #ff4444;
         }
 
-        /* Canvas Animation Styling */
-        .canvas-card {
-            grid-column: span 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        @media (max-width: 600px) {
-            .canvas-card {
-                grid-column: span 1;
-            }
-        }
-
-        canvas {
-            background: #000;
-            border-radius: 8px;
-            width: 100%;
-            height: 200px;
-            margin-top: 1rem;
+        @keyframes pulse {
+            from { text-shadow: 0 0 10px var(--border-neon), 0 0 20px var(--border-neon); }
+            to { text-shadow: 0 0 10px var(--border-neon), 0 0 25px var(--border-neon), 0 0 35px var(--border-neon); }
         }
     </style>
 </head>
 <body>
 
+    <!-- Dynamic Canvas covering the entire background -->
+    <canvas id="bgCanvas"></canvas>
+
     <header>
-        <h1>Interactive Space</h1>
-        <button class="theme-btn" id="themeToggle">Toggle Theme</button>
+        <h1>Neon Terminal</h1>
     </header>
 
     <div class="dashboard">
-        <!-- Card 1: Click Counter -->
+        <!-- Neon Interactive Click Counter -->
         <div class="card counter-section">
-            <h2>Click Counter</h2>
+            <h2>Pulse Engine</h2>
             <div class="counter-display" id="counter">0</div>
-            <button id="countBtn">Click Me!</button>
+            <button class="btn-cyan" id="countBtn">Charge Core</button>
         </div>
 
-        <!-- Card 2: To-Do List -->
+        <!-- Neon Interactive To-Do List -->
         <div class="card">
-            <h2>Task Tracker</h2>
-            <div class="todo-input-group">
-                <input type="text" id="todoInput" placeholder="Add a new task...">
-                <button id="addTodoBtn">Add</button>
+            <h2>System Protocols</h2>
+            <div class="input-group">
+                <input type="text" id="todoInput" placeholder="Initialize script...">
+                <button class="btn-pink" id="addTodoBtn">Load</button>
             </div>
             <ul class="todo-list" id="todoList"></ul>
-        </div>
-
-        <!-- Card 3: Interactive Particle Canvas -->
-        <div class="card canvas-card">
-            <h2>Interactive Particle Box (Move mouse inside)</h2>
-            <canvas id="particleCanvas"></canvas>
         </div>
     </div>
 
     <script>
-        // --- Theme Switcher Logic ---
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'light') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        });
-
         // --- Click Counter Logic ---
         const counterDisplay = document.getElementById('counter');
         const countBtn = document.getElementById('countBtn');
@@ -232,7 +249,6 @@
         countBtn.addEventListener('click', () => {
             count++;
             counterDisplay.textContent = count;
-            // Add a slight bounce effect
             counterDisplay.style.transform = 'scale(1.2)';
             setTimeout(() => counterDisplay.style.transform = 'scale(1)', 100);
         });
@@ -250,10 +266,10 @@
             li.className = 'todo-item';
             
             const span = document.createElement('span');
-            span.textContent = taskText;
+            span.textContent = `> ${taskText}`;
             
             const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'X';
+            deleteBtn.textContent = 'DEL';
             deleteBtn.className = 'delete-btn';
             deleteBtn.onclick = () => li.remove();
 
@@ -269,69 +285,41 @@
             if (e.key === 'Enter') addTodo();
         });
 
-        // --- Canvas Particles Logic ---
-        const canvas = document.getElementById('particleCanvas');
+        // --- Full Background Neon Particles Animation ---
+        const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Resize canvas correctly
-        function resizeCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+        let ArrayParticles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        window.addEventListener('resize', resize);
+        resize();
 
-        const particles = [];
-        const mouse = { x: null, y: null };
-
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
-            
-            // Generate a particle on move
-            if(particles.length < 50) {
-                particles.push(new Particle(mouse.x, mouse.y));
-            }
-        });
-
-        canvas.addEventListener('mouseleave', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
-
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.size = Math.random() * 5 + 2;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        class BackgroundParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                // Alternate between Neon Cyan and Neon Pink
+                this.color = Math.random() > 0.5 ? '#00f0ff' : '#ff007f';
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.size > 0.1) this.size -= 0.05;
+
+                // Wrap around edges
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
             }
             draw() {
+                ctx.save();
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
                 ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                
-                if (particles[i].size <= 0.1) {
-                    particles.splice(i, 1);
-                    i--;
-                }
-            }
